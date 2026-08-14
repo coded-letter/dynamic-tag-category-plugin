@@ -3,7 +3,7 @@
  * Plugin Name:       Dynamic Tag to Category Products
  * Plugin URI:        https://github.com/coded-letter/dynamic-tag-category-plugin
  * Description:       Add a chosen WooCommerce product tag to every product in a chosen category.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            Coded Letter
@@ -58,6 +58,16 @@ function coded_letter_dtcp_apply_tag( $category_identifier, $tag_name ) {
 		);
 	}
 
+	$tag = term_exists( $tag_name, 'product_tag' );
+	if ( ! $tag ) {
+		$tag = wp_insert_term( $tag_name, 'product_tag' );
+	}
+
+	if ( is_wp_error( $tag ) ) {
+		return $tag;
+	}
+
+	$tag_id  = (int) ( is_array( $tag ) ? $tag['term_id'] : $tag );
 	$updated = 0;
 	$skipped = 0;
 	$failed  = 0;
@@ -67,7 +77,7 @@ function coded_letter_dtcp_apply_tag( $category_identifier, $tag_name ) {
 		$query = new WP_Query(
 			array(
 				'post_type'              => 'product',
-				'post_status'            => array( 'publish', 'draft', 'pending', 'private' ),
+				'post_status'            => array( 'publish', 'future', 'draft', 'pending', 'private' ),
 				'posts_per_page'         => 200,
 				'paged'                  => $page,
 				'fields'                 => 'ids',
@@ -84,13 +94,32 @@ function coded_letter_dtcp_apply_tag( $category_identifier, $tag_name ) {
 			)
 		);
 
+		$tagged_product_ids = array();
+		if ( $query->posts ) {
+			$product_terms = wp_get_object_terms(
+				$query->posts,
+				'product_tag',
+				array( 'fields' => 'all_with_object_id' )
+			);
+
+			if ( is_wp_error( $product_terms ) ) {
+				return $product_terms;
+			}
+
+			foreach ( $product_terms as $product_term ) {
+				if ( $tag_id === (int) $product_term->term_id ) {
+					$tagged_product_ids[ (int) $product_term->object_id ] = true;
+				}
+			}
+		}
+
 		foreach ( $query->posts as $product_id ) {
-			if ( has_term( $tag_name, 'product_tag', $product_id ) ) {
+			if ( isset( $tagged_product_ids[ $product_id ] ) ) {
 				++$skipped;
 				continue;
 			}
 
-			$result = wp_set_post_terms( $product_id, array( $tag_name ), 'product_tag', true );
+			$result = wp_set_object_terms( $product_id, array( $tag_id ), 'product_tag', true );
 			if ( is_wp_error( $result ) ) {
 				++$failed;
 				continue;

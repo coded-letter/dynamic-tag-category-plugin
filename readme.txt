@@ -4,7 +4,7 @@ Tags: woocommerce, products, categories, tags, bulk edit
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: MIT
 License URI: https://opensource.org/license/mit
 
@@ -28,6 +28,10 @@ processed in bounded batches.
 4. Open Tools > Add Tag to Category.
 
 == Changelog ==
+
+= 1.1.1 =
+* Include scheduled products in category updates.
+* Bulk-load existing tag relationships for each product batch.
 
 = 1.1.0 =
 * Publish the secured Coded Letter release.
