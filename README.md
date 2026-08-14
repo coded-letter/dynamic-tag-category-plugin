@@ -24,9 +24,10 @@ skipped.
 
 ## Provenance
 
-This Coded Letter release develops and secures the original
-[`Ys-sudo/dynamic-tag-category-plugin`](https://github.com/Ys-sudo/dynamic-tag-category-plugin)
-prototype by George Lazaridis.
+This Coded Letter release develops and secures George Lazaridis's original
+prototype. Its exact pre-migration history is preserved on the
+[`legacy/ys-sudo-main`](https://github.com/coded-letter/dynamic-tag-category-plugin/tree/legacy/ys-sudo-main)
+branch.
 
 ## License
 
